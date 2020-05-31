@@ -9,17 +9,21 @@
 #include <time.h>
 #include "blocking_queue.h"
 
+// push队列操作线程数
 const static int PUSH_THREAD_NUM = 5;
+// pop队列操作线程数
 const static int POP_THREAD_NUM = 20;
 
 static std::atomic<bool> quit;
 
-void push_queue(int id, BlockingQueue* queue) {
+static void push_queue(int id, BlockingQueue* queue) {
     std::string thread_name = "push_" + std::to_string(id);
     while (!quit) {
+        // 产生0-9999随机数
         int data = rand() % 10000;
         size_t queue_size = queue->size();
         queue->push(data);
+        // 构造完整字符串，防止由于std::cout在多线程下，线程不安全，完整字符串被分开
         std::stringstream info;
         info << "[" << thread_name << "] push queue, data=" << data << ", queue_size=" << queue_size << "\n";
         std::cout << info.str();
@@ -27,11 +31,12 @@ void push_queue(int id, BlockingQueue* queue) {
     }
 }
 
-void pop_queue(int id, BlockingQueue* queue) {
+static void pop_queue(int id, BlockingQueue* queue) {
     std::string thread_name = "pop_" + std::to_string(id);
     while (!quit) {
         int data = queue->pop();
         size_t queue_size = queue->size();
+        // 构造完整字符串，防止由于std::cout在多线程下，线程不安全，完整字符串被分开
         std::stringstream info;
         info << "[" << thread_name << "] pop queue, data=" << data << ", queue_size=" << queue_size << "\n";
         std::cout << info.str();
@@ -39,7 +44,8 @@ void pop_queue(int id, BlockingQueue* queue) {
     }
 }
 
-void signalHandler(int signum) {
+// 捕捉信号，用于程序的优雅退出
+static void signalHandler(int signum) {
     quit = true;
 } 
 
@@ -65,11 +71,12 @@ int main(int argc, char** argv) {
     queue.quit();
     for (auto it = threads.begin(); it != threads.end(); ++it) {
         if (it->joinable()) {
+            // 等待线程的自然结束
             it->join();
         }
     }
 
-    std::cout << "program going to quit\n";
+    std::cout << "\nprogram going to quit\n";
 
     return 0;
 }

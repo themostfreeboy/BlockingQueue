@@ -12,22 +12,24 @@ BlockingQueue::~BlockingQueue() {
 void BlockingQueue::push(const int& data) {
     std::lock_guard<std::mutex> lock(_mutex);
     if (_quit) {
-        _cond_var.notify_all();
+        // 程序已退出
         return;
     }
     _queue.push(data);
-    _cond_var.notify_all();
+    _cond_var.notify_one();
 }
 
 int BlockingQueue::pop() {
     std::unique_lock<std::mutex> lock(_mutex);
-    if (_quit) {
-        return 0xffffffff;
+    // 使用while防止虚假唤醒
+    while (!_quit && _queue.empty()) {
+        _cond_var.wait(lock, [this] { return _quit || !_queue.empty(); });
     }
-    _cond_var.wait(lock, [this] { return _quit || !_queue.empty(); });
     if (_quit) {
-        return 0xffffffff;
+        // 程序已退出，返回-1
+        return -1;
     }
+    // 队列一定非空
     assert(!_queue.empty());
     int data = _queue.front();
     _queue.pop();
@@ -47,5 +49,6 @@ bool BlockingQueue::is_empty() {
 void BlockingQueue::quit() {
     if (!_quit) {
         _quit = true;
+        _cond_var.notify_all();
     }
 }
