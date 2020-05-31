@@ -4,14 +4,13 @@
 #include <csignal>
 #include <string>
 #include <unistd.h>
-#include <atomic>
 #include <sstream>
 #include <stdlib.h>
 #include <time.h>
 #include "blocking_queue.h"
 
-const static int PUSH_THREAD_NUM = 10;
-const static int POP_THREAD_NUM = 10;
+const static int PUSH_THREAD_NUM = 5;
+const static int POP_THREAD_NUM = 20;
 
 static std::atomic<bool> quit;
 
@@ -63,6 +62,7 @@ int main(int argc, char** argv) {
         usleep(200);
     }
 
+    queue.quit();
     for (auto it = threads.begin(); it != threads.end(); ++it) {
         if (it->joinable()) {
             it->join();
