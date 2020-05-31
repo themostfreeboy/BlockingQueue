@@ -12,7 +12,7 @@
 // push队列操作线程数
 const static int PUSH_THREAD_NUM = 5;
 // pop队列操作线程数
-const static int POP_THREAD_NUM = 20;
+const static int POP_THREAD_NUM = 50;
 
 static std::atomic<bool> quit;
 
@@ -27,7 +27,7 @@ static void push_queue(int id, BlockingQueue* queue) {
         std::stringstream info;
         info << "[" << thread_name << "] push queue, data=" << data << ", queue_size=" << queue_size << "\n";
         std::cout << info.str();
-        usleep(200);
+        usleep(200000);
     }
 }
 
@@ -40,7 +40,7 @@ static void pop_queue(int id, BlockingQueue* queue) {
         std::stringstream info;
         info << "[" << thread_name << "] pop queue, data=" << data << ", queue_size=" << queue_size << "\n";
         std::cout << info.str();
-        usleep(200);
+        usleep(200000);
     }
 }
 
@@ -65,7 +65,7 @@ int main(int argc, char** argv) {
     }
 
     while (!quit) {
-        usleep(200);
+        usleep(200000);
     }
 
     queue.quit();

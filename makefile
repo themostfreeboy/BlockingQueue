@@ -4,7 +4,7 @@ CC = g++
 SRC = main.cpp blocking_queue.cpp
 OBJ = $(patsubst %.cpp,%.o,$(SRC))
 
-CXXFLAGS += -g -Wall -I./ -std=c++11 -o0
+CXXFLAGS += -g -Wall -I./ -std=c++11
 LDFLAGS += -lpthread -Wl,-rpath -Wl,--no-as-needed
 
 all: $(OBJ)
