@@ -10,7 +10,7 @@ class BlockingQueue {
 public:
     BlockingQueue();
     ~BlockingQueue();
-    void push(const int& data);
+    void push(int data);
     int pop();
     size_t size();
     bool is_empty();

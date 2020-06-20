@@ -7,6 +7,7 @@
 #include <sstream>
 #include <stdlib.h>
 #include <time.h>
+#include <atomic>
 #include "blocking_queue.h"
 
 // push队列操作线程数
@@ -52,6 +53,7 @@ static void signalHandler(int signum) {
 int main(int argc, char** argv) {
     quit = false;
     signal(SIGINT, signalHandler);
+    signal(SIGTERM, signalHandler);
 
     srand((unsigned int)time(NULL));
 
@@ -69,10 +71,10 @@ int main(int argc, char** argv) {
     }
 
     queue.quit();
-    for (auto it = threads.begin(); it != threads.end(); ++it) {
-        if (it->joinable()) {
+    for (std::thread& thread : threads) {
+        if (thread.joinable()) {
             // 等待线程的自然结束
-            it->join();
+            thread.join();
         }
     }
 
